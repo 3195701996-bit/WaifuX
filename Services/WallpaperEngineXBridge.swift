@@ -5145,6 +5145,11 @@ final class WallpaperEngineXBridge: ObservableObject {
             return
         }
 
+        // macOS 27：显示器参数变化（分辨率/缩放/Windo​​wManager 事件）会把
+        // wallpaper-wgpu 的桌面窗口挤出当前 Space（渲染正常但桌面看不到），
+        // 与 Space 切换同等处理，立即拉回。
+        reassertRendererWindowsOnCurrentSpace()
+
         let previousConfigurations = lastAppliedScreenConfigurations
         let statesBeforeRestart = screenRenderStates
 
