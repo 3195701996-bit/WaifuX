@@ -1129,9 +1129,9 @@ final class WallpaperEngineXBridge: ObservableObject {
                 )
                 _deinitPIDs.insert(launchedPID)
                 print("[WallpaperEngineXBridge] ✅ 屏幕 \(screenID) wallpaper-wgpu 已启动 (pid=\(launchedPID))")
-                AppLogger.error(.wallpaper, "wallpaper-wgpu 进程已启动", metadata: ["screenID": screenID, "pid": launchedPID, "renderKind": renderKind.rawValue, "screenProcesses": screenProcesses.count])
                 // macOS 27：新进程的桌面窗口可能落在非当前 Space，延迟分拍拉回
                 scheduleRendererWindowVisibilityGuard(pid: launchedPID, screenID: screenID)
+                AppLogger.error(.wallpaper, "wallpaper-wgpu 进程已启动", metadata: ["screenID": screenID, "pid": launchedPID, "renderKind": renderKind.rawValue, "screenProcesses": screenProcesses.count])
 
                 // 异步等待 canvas_size 就绪后重算 crop
                 if cropSettings.shouldApplyCrop {
@@ -1297,8 +1297,6 @@ final class WallpaperEngineXBridge: ObservableObject {
         for screen in effectiveScreens {
             applyPersistedCrop(for: screen)
         }
-        // macOS 27：热切换复用旧进程时其窗口也可能处于离屏态，成功后统一拉回
-        reassertRendererWindowsOnCurrentSpace()
         // 清除旧的前台暂停状态，避免 reevaluateCurrentState() 对新启动的渲染器误发 SIGSTOP。
         // 用户之后切走应用时，NSWorkspace app activation 通知会重新施加前台暂停。
         if !preserveAutoPauseState {
